@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивті Зертханалық Жұмыс</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Интер щрифін қосу */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+        }
+        /* Сынауықтың негізгі стилі */
+        .test-tube {
+            width: 100px;
+            height: 300px;
+            border: 4px solid #9ca3af; /* border-gray-400 */
+            border-top: none; /* Жоғарғы жағында жиек жоқ */
+            border-radius: 0 0 50px 50px; /* Төменгі жағын дөңгелектеу */
+            position: relative;
+            background-color: #f1f5f9; /* bg-slate-100 */
+            overflow: hidden; /* Ішіндегі сұйықтық "төгілмейді" */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        /* Сынауықтың жоғарғы ернеуі */
+        .test-tube::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -10px;
+            right: -10px;
+            height: 20px;
+            background: #e2e8f0; /* bg-slate-200 */
+            border: 4px solid #9ca3af; /* border-gray-400 */
+            border-radius: 25px / 10px;
+        }
+        
+        /* Сұйықтықтар мен тұнбалар үшін ортақ стиль */
+        .liquid, .precipitate {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            transition: all 0.7s ease-in-out;
+            opacity: 0.9;
+        }
+        /* Сұйықтық (ерітінді) */
+        .liquid {
+            z-index: 5;
+        }
+        /* Тұнба (түбінде) */
+        .precipitate {
+            z-index: 10;
+            opacity: 1;
+            background-color: #1e3a8a; /* bg-blue-900 */
+        }
+
+        /* Таңдау (select) элементтерінің стилі */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20127.9c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-13%200-5-1.9-9.2-5.5-12.6z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 0.65em auto;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-white flex items-center justify-center min-h-screen py-10">
+
+    <div class="container mx-auto p-6 max-w-6xl text-center">
+        
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">
+            Интерактивті зертханалық жұмыс
+        </h1>
+        <p class="text-lg text-gray-600 mb-8">
+            Мақсат: Екі сынауыққа KOH және CuSO₄ ерітінділерін әртүрлі мөлшерде қосып, тұнбаның пайда болуын зерттеу.
+        </p>
+
+        <!-- Зертхана үстелі (Сынауықтар мен басқару) -->
+        <div class="flex flex-col md:flex-row justify-around items-start min-h-[500px]">
+            
+            <!-- Сынауық 1 және оның басқару панелі -->
+            <div class="flex flex-col items-center w-full md:w-1/2 px-4">
+                <p class="mt-4 text-2xl font-medium text-gray-700">Сынауық 1</p>
+                <div class="test-tube">
+                    <div id="precipitate1" class="precipitate"></div>
+                    <div id="liquid1" class="liquid"></div>
+                </div>
+                <!-- Басқару 1 -->
+                <div class="space-y-4 w-full max-w-xs">
+                    <div class="flex items-center space-x-2">
+                        <label for="reagent1" class="text-sm font-medium text-gray-700 w-24">Ерітінді:</label>
+                        <select id="reagent1" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="koh">KOH (калий гидроксиді)</option>
+                            <option value="cuso4">CuSO₄ (мыс сульфаты)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                         <label for="volume1" class="text-sm font-medium text-gray-700 w-24">Мөлшері:</label>
+                        <select id="volume1" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="1">1 мл</option>
+                            <option value="2">2 мл</option>
+                            <option value="3">3 мл</option>
+                            <option value="4">4 мл</option>
+                            <option value="5">5 мл</option>
+                        </select>
+                    </div>
+                    <button id="addBtn1" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                        1-ші сынауыққа қосу
+                    </button>
+                </div>
+            </div>
+
+            <!-- Сынауық 2 және оның басқару панелі -->
+            <div class="flex flex-col items-center w-full md:w-1/2 px-4 mt-10 md:mt-0">
+                <p class="mt-4 text-2xl font-medium text-gray-700">Сынауық 2</p>
+                <div class="test-tube">
+                    <div id="precipitate2" class="precipitate"></div>
+                    <div id="liquid2" class="liquid"></div>
+                </div>
+                 <!-- Басқару 2 -->
+                <div class="space-y-4 w-full max-w-xs">
+                    <div class="flex items-center space-x-2">
+                        <label for="reagent2" class="text-sm font-medium text-gray-700 w-24">Ерітінді:</label>
+                        <select id="reagent2" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="koh">KOH (калий гидроксиді)</option>
+                            <option value="cuso4">CuSO₄ (мыс сульфаты)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                         <label for="volume2" class="text-sm font-medium text-gray-700 w-24">Мөлшері:</label>
+                        <select id="volume2" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="1">1 мл</option>
+                            <option value="2">2 мл</option>
+                            <option value="3">3 мл</option>
+                            <option value="4">4 мл</option>
+                            <option value="5">5 мл</option>
+                        </select>
+                    </div>
+                    <button id="addBtn2" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                        2-ші сынауыққа қосу
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Нәтиже және қорытынды -->
+        <div id="conclusion" class="mt-12 p-6 bg-gray-100 rounded-lg shadow-inner min-h-[150px] text-left">
+            <!-- <h3 class="text-xl font-semibold text-gray-800 mb-2 text-center">Тәжірибе нәтижесі:</h3> --> <!-- Алып тасталды -->
+            <div id="conclusionText" class="text-gray-700 space-y-2">
+                <p>Тәжірибені бастау үшін сынауықтарға ерітінділерді қосыңыз.</p>
+                <p><strong>Реакция теңдеуі:</strong> 2KOH + CuSO₄ ➔ Cu(OH)₂(тұнба) + K₂SO₄</p>
+            </div>
+        </div>
+
+        <!-- Қайта бастау түймесі -->
+        <button id="resetBtn" class="mt-8 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">
+            Барлығын тазарту
+        </button>
+
+    </div>
+
+    <!-- Хабарлама терезесі (Alert орнына) -->
+    <div id="messageBox" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h4 class="text-lg font-bold mb-4" id="messageTitle">Ескерту</h4>
+            <p id="messageText" class="text-gray-700 mb-6"></p>
+            <button id="messageOkBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
+                Түсінікті
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // DOM элементтері
+        const liquid1 = document.getElementById('liquid1');
+        const precipitate1 = document.getElementById('precipitate1');
+        const addBtn1 = document.getElementById('addBtn1');
+
+        const liquid2 = document.getElementById('liquid2');
+        const precipitate2 = document.getElementById('precipitate2');
+        const addBtn2 = document.getElementById('addBtn2');
+
+        const resetBtn = document.getElementById('resetBtn');
+        const conclusionText = document.getElementById('conclusionText');
+
+        // Хабарлама терезесі
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const messageOkBtn = document.getElementById('messageOkBtn');
+
+        // Тәжірибе күйі (әр сынауық үшін)
+        let tube1_koh = 0;
+        let tube1_cuso4 = 0;
+        let tube2_koh = 0;
+        let tube2_cuso4 = 0;
+
+        const MAX_ML_PER_TUBE = 10; // Сынауықтың макс. сыйымдылығы
+        const ML_TO_PERCENT = 9;  // 1 мл = 9% биіктік (10мл * 9 = 90% макс)
+
+        // Хабарлама көрсету
+        function showMessage(text, title = 'Ескерту') {
+            document.getElementById('messageTitle').innerText = title;
+            messageText.innerText = text;
+            messageBox.classList.remove('hidden');
+        }
+
+        // Хабарламаны жабу
+        messageOkBtn.addEventListener('click', () => {
+            messageBox.classList.add('hidden');
+        });
+
+        // 1-ші сынауыққа қосу
+        addBtn1.addEventListener('click', () => {
+            const reagent = document.getElementById('reagent1').value;
+            const volume = parseInt(document.getElementById('volume1').value);
+
+            if (tube1_koh + tube1_cuso4 + volume > MAX_ML_PER_TUBE) {
+                showMessage('1-ші сынауық толды! Одан әрі қосу мүмкін емес.');
+                return;
+            }
+
+            if (reagent === 'koh') {
+                tube1_koh += volume;
+            } else if (reagent === 'cuso4') {
+                tube1_cuso4 += volume;
+            }
+            updateTube(1);
+        });
+
+        // 2-ші сынауыққа қосу
+        addBtn2.addEventListener('click', () => {
+            const reagent = document.getElementById('reagent2').value;
+            const volume = parseInt(document.getElementById('volume2').value);
+
+            if (tube2_koh + tube2_cuso4 + volume > MAX_ML_PER_TUBE) {
+                showMessage('2-ші сынауық толды! Одан әрі қосу мүмкін емес.');
+                return;
+            }
+
+            if (reagent === 'koh') {
+                tube2_koh += volume;
+            } else if (reagent === 'cuso4') {
+                tube2_cuso4 += volume;
+            }
+            updateTube(2);
+        });
+
+        // Сынауықты жаңарту функциясы
+        function updateTube(tubeNum) {
+            let koh_ml, cuso4_ml, liquidDiv, precipitateDiv;
+
+            if (tubeNum === 1) {
+                koh_ml = tube1_koh;
+                cuso4_ml = tube1_cuso4;
+                liquidDiv = liquid1;
+                precipitateDiv = precipitate1;
+            } else {
+                koh_ml = tube2_koh;
+                cuso4_ml = tube2_cuso4;
+                liquidDiv = liquid2;
+                precipitateDiv = precipitate2;
+            }
+
+            const total_liquid_ml = koh_ml + cuso4_ml;
+            
+            // Реакция логикасы: 2KOH + CuSO₄ -> Cu(OH)₂
+            // 2:1 қатынас
+            let consumed_cuso4 = Math.min(koh_ml / 2, cuso4_ml);
+            let precipitate_ml = consumed_cuso4; // Тұнба мөлшері жұмсалған CuSO₄-ке пропорционал
+
+            // Биіктіктерді орнату
+            precipitateDiv.style.height = (precipitate_ml * ML_TO_PERCENT) + '%';
+            liquidDiv.style.height = (total_liquid_ml * ML_TO_PERCENT) + '%';
+
+            // Ерітінді түсін анықтау
+            if (total_liquid_ml === 0) {
+                liquidDiv.style.backgroundColor = 'transparent'; // Бос
+            } else if (cuso4_ml > (koh_ml / 2)) {
+                // CuSO₄ артық (көк ерітінді)
+                liquidDiv.style.backgroundColor = '#60a5fa'; // bg-blue-400
+            } else if (koh_ml > (cuso4_ml * 2)) {
+                // KOH артық (түссіз ерітінді)
+                liquidDiv.style.backgroundColor = '#bae6fd'; // bg-sky-200
+            } else {
+                // Дәл реакция (түссіз K₂SO₄ ерітіндісі)
+                liquidDiv.style.backgroundColor = '#cffafe'; // bg-cyan-100
+            }
+
+            updateConclusion();
+        }
+
+        // Қорытындыны жаңарту
+        function updateConclusion() {
+            let text = `<p><strong>Реакция теңдеуі:</strong> 2KOH + CuSO₄ ➔ Cu(OH)₂(тұнба) + K₂SO₄ (2:1 қатынас)</p><hr class="my-2">`;
+            
+            if (tube1_koh === 0 && tube1_cuso4 === 0 && tube2_koh === 0 && tube2_cuso4 === 0) {
+                text = `
+                    <p>Тәжірибені бастау үшін сынауықтарға ерітінділерді қосыңыз.</p>
+                    <p><strong>Реакция теңдеуі:</strong> 2KOH + CuSO₄ ➔ Cu(OH)₂(тұнба) + K₂SO₄ (2:1 қатынас)</p>
+                `;
+            } else {
+                 // Сынауық 1
+                let conclusion1 = `<strong>Сынауық 1:</strong> ${tube1_koh}мл KOH + ${tube1_cuso4}мл CuSO₄.`;
+                text += `<p>${conclusion1}</p>`;
+
+                // Сынауық 2
+                let conclusion2 = `<strong>Сынауық 2:</strong> ${tube2_koh}мл KOH + ${tube2_cuso4}мл CuSO₄.`;
+                text += `<p>${conclusion2}</p>`;
+            }
+
+            conclusionText.innerHTML = text;
+        }
+
+        // Қайта бастау
+        resetBtn.addEventListener('click', () => {
+            tube1_koh = 0;
+            tube1_cuso4 = 0;
+            tube2_koh = 0;
+            tube2_cuso4 = 0;
+
+            updateTube(1);
+            updateTube(2);
+
+            /*
+            conclusionText.innerHTML = `
+                <p>Тәжірибені бастау үшін сынауықтарға ерітінділерді қосыңыз.</p>
+                <p><strong>Реакция теңдеуі:</strong> 2KOH + CuSO₄ ➔ Cu(OH)₂(тұнба) + K₂SO₄</p>
+            `;
+            */
+            
+            showMessage('Симуляция қалпына келтірілді.', 'Тазарту');
+        });
+
+        // Бастапқы қорытындыны орнату
+        updateConclusion();
+
+    </script>
+
+</body>
+</html>
